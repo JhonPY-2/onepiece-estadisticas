@@ -1,6 +1,9 @@
+from typing import List, Optional
+
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
+from pydantic import BaseModel, Field
 import os
 
 
@@ -13,12 +16,43 @@ cliente = AsyncIOMotorClient(os.getenv("MONGODB_URI"))
 db = cliente.get_default_database()
 
 
+# ---------- Modelos de respuesta (Pydantic) ----------
+
+class PersonajeMayorRecompensa(BaseModel):
+    nombre: str
+    recompensa: float
+
+
+class EstadisticasPersonajes(BaseModel):
+    total_personajes: int
+    personaje_mayor_recompensa: Optional[PersonajeMayorRecompensa] = None
+
+
+class EquipoConteo(BaseModel):
+    # Mongo devuelve el nombre del equipo en "_id"; se conserva ese nombre en el JSON
+    equipo: Optional[str] = Field(default=None, alias="_id")
+    cantidad: int
+
+
+class EstadisticasAtletas(BaseModel):
+    total_atletas: int
+    atletas_por_equipo: List[EquipoConteo]
+
+
+class Resumen(BaseModel):
+    total_personajes: int
+    total_atletas: int
+    personaje_mayor_recompensa: Optional[PersonajeMayorRecompensa] = None
+
+
+# ---------- Endpoints ----------
+
 @app.get("/")
 async def raiz():
     return {"mensaje": "Microservicio de estadisticas funcionando"}
 
 
-@app.get("/estadisticas/personajes")
+@app.get("/estadisticas/personajes", response_model=EstadisticasPersonajes)
 async def estadisticas_personajes():
     total_personajes = await db.personajes.count_documents({})
 
@@ -39,7 +73,7 @@ async def estadisticas_personajes():
     }
 
 
-@app.get("/estadisticas/atletas")
+@app.get("/estadisticas/atletas", response_model=EstadisticasAtletas)
 async def estadisticas_atletas():
     total_atletas = await db.atletas.count_documents({})
 
@@ -57,7 +91,7 @@ async def estadisticas_atletas():
     }
 
 
-@app.get("/estadisticas/resumen")
+@app.get("/estadisticas/resumen", response_model=Resumen)
 async def estadisticas_resumen():
     total_personajes = await db.personajes.count_documents({})
     total_atletas = await db.atletas.count_documents({})
