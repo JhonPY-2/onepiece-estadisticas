@@ -19,4 +19,4 @@ Documentación automática en http://localhost:8000/docs. Configuración: copia 
 pytest -v
 ```
 
-> Consulta el README principal del proyecto en `../onepiece-app/README.md`.
+> Consulta el README principal del proyecto en [README principal (repositorio mongo-crud)](https://github.com/JhonPY-2/mongo-crud).
