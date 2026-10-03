@@ -1,6 +1,6 @@
 # onepiece-estadisticas
 
-Microservicio de estadísticas (FastAPI + Motor + Pydantic) de One Piece App. Calcula totales y agregaciones contra MongoDB (mayor recompensa, atletas por equipo) y los expone bajo `/estadisticas/*`.
+Microservicio de estadísticas (FastAPI + Motor + Pydantic) de One Piece App. Calcula totales y agregaciones contra MongoDB (mayor recompensa, atletas por equipo, miembros por tripulación) y los expone bajo `/estadisticas/*`.
 
 ## Correrlo
 

@@ -39,6 +39,17 @@ class EstadisticasAtletas(BaseModel):
     atletas_por_equipo: List[EquipoConteo]
 
 
+class TripulacionConteo(BaseModel):
+    # Mongo devuelve el nombre de la tripulación en "_id"; se conserva ese nombre en el JSON
+    tripulacion: Optional[str] = Field(default=None, alias="_id")
+    cantidad: int
+
+
+class EstadisticasTripulaciones(BaseModel):
+    total_tripulaciones: int
+    tripulaciones_por_nombre: List[TripulacionConteo]
+
+
 class Resumen(BaseModel):
     total_personajes: int
     total_atletas: int
@@ -46,6 +57,43 @@ class Resumen(BaseModel):
 
 
 # ---------- Endpoints ----------
+
+async def coleccion_tripulaciones(existentes: list) -> str:
+    """La colección se llama 'tripulacions' por la pluralización por defecto de Mongoose.
+
+    Se prueba primero 'tripulaciones' por si algún día se cambia el nombre, para
+    que el $lookup siga funcionando en cualquiera de los dos casos.
+    """
+    for nombre in ("tripulaciones", "tripulacions"):
+        if nombre in existentes:
+            return nombre
+    return "tripulaciones"
+
+
+async def conteo_miembros(coleccion_miembros: str, coleccion_ref: str) -> dict:
+    """Agrupa una colección de miembros por tripulacion y resuelve el nombre real."""
+    pipeline = [
+        {"$group": {"_id": "$tripulacion", "cantidad": {"$sum": 1}}},
+        {
+            "$lookup": {
+                "from": coleccion_ref,
+                "localField": "_id",
+                "foreignField": "_id",
+                "as": "tripulacion_doc",
+            }
+        },
+        {
+            "$project": {
+                "_id": 1,
+                "cantidad": 1,
+                "nombre": {"$ifNull": [{"$first": "$tripulacion_doc.nombre"}, None]},
+            }
+        },
+    ]
+
+    cursor = db[coleccion_miembros].aggregate(pipeline)
+    return {d["nombre"]: d["cantidad"] for d in await cursor.to_list(length=None)}
+
 
 @app.get("/")
 async def raiz():
@@ -88,6 +136,35 @@ async def estadisticas_atletas():
     return {
         "total_atletas": total_atletas,
         "atletas_por_equipo": atletas_por_equipo
+    }
+
+
+@app.get("/estadisticas/tripulaciones", response_model=EstadisticasTripulaciones)
+async def estadisticas_tripulaciones():
+    existentes = await db.list_collection_names()
+    coleccion = await coleccion_tripulaciones(existentes)
+
+    # La base son todas las tripulaciones, así que también salen las que no tienen miembros
+    cursor = db[coleccion].find({}, {"nombre": 1})
+    tripulaciones = await cursor.to_list(length=None)
+    conteos = {t["nombre"]: 0 for t in tripulaciones}
+
+    # El backend considera miembros tanto a personajes como a tripulantes
+    colecciones_miembros = ["personajes", "tripulantes"]
+    for coleccion_miembros in colecciones_miembros:
+        if coleccion_miembros in existentes:
+            for nombre, cantidad in (await conteo_miembros(coleccion_miembros, coleccion)).items():
+                if nombre in conteos:
+                    conteos[nombre] += cantidad
+
+    tripulaciones_por_nombre = [
+        {"_id": nombre, "cantidad": cantidad}
+        for nombre, cantidad in sorted(conteos.items(), key=lambda i: -i[1])
+    ]
+
+    return {
+        "total_tripulaciones": len(tripulaciones),
+        "tripulaciones_por_nombre": tripulaciones_por_nombre,
     }
 
 

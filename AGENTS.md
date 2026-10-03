@@ -6,7 +6,10 @@ Repositorio: onepiece-estadisticas (microservicio FastAPI que expone `/estadisti
 
 - Tecnologías: FastAPI + Motor (MongoDB asíncrono) + Pydantic. `main.py`, `tests/`, `pytest.ini`.
 - Punto de entrada: `main:app` (uvicorn).
-- Endpoints: `/` → mensaje; `/estadisticas/personajes`, `/estadisticas/atletas` (agrupado por `$equipo` desc), `/estadisticas/resumen`. `EquipoConteo._id` se expone como `equipo`.
+- Endpoints: `/` → mensaje; `/estadisticas/personajes`, `/estadisticas/atletas` (agrupado por `$equipo` desc), `/estadisticas/tripulaciones` (miembros por tripulación vía `$lookup`), `/estadisticas/resumen`. `EquipoConteo._id` se expone como `equipo` y `TripulacionConteo._id` como `tripulacion`.
+- `personajes.tripulacion` es un `ObjectId` que referencia la colección de tripulaciones, no un texto: por eso `/estadisticas/tripulaciones` usa `$lookup` y no un `$group` simple.
+- La colección de tripulaciones se llama `tripulacions` por la pluralización por defecto de Mongoose; `coleccion_tripulaciones()` la resuelve en runtime probando `tripulaciones` primero por si se cambia el nombre.
+- Un miembro es un documento de `personajes` **o** de `tripulantes` (mismo criterio que `tripulacionController.js` del backend principal).
 
 ## Configuración / Ejecución
 
@@ -19,7 +22,7 @@ Repositorio: onepiece-estadisticas (microservicio FastAPI que expone `/estadisti
 
 - `pytest -v` desde la raíz. `pytest.ini`: `pythonpath=.` `testpaths=tests`, `asyncio_mode=auto`, `asyncio_default_fixture_loop_scope=function`.
 - Aislamiento: conecta a `MONGODB_URI`, usa DB `onepiece_test`, verifica `db.name != main.db.name`, hace monkeypatch de `main.db`, limpia al terminar. Peticiones vía `httpx.ASGITransport`.
-- Casos: sin datos devuelve ceros/`None`. Datos de prueba: Luffy mayor recompensa (3e9), Equipo A aparece 2 veces.
+- Casos: sin datos devuelve ceros/`None`. Datos de prueba: Luffy mayor recompensa (3e9), Equipo A aparece 2 veces. Tripulaciones usan `ObjectId` + documentos en `tripulaciones`, como la base real: se comprueba la mezcla `personajes` + `tripulantes`, las tripulaciones sin miembros (0) y las referencias sin documento (se ignoran).
 - CI: push/PR a `master`, `mongo:7` en 27017, `MONGODB_URI=mongodb://localhost:27017/onepiece`, Python 3.12 + `pytest`.
 
 ## Notas del entorno
