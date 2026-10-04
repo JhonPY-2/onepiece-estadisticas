@@ -51,3 +51,4 @@ Repositorio: onepiece-estadisticas (microservicio FastAPI que expone `/estadisti
 ## Verificación
 
 - Correr `pytest -v` desde la raíz y confirmar que pasa antes de dar una tarea por terminada.
+- Opcional: con `uvicorn` corriendo, los endpoints nuevos o modificados también se pueden comprobar con el MCP de Chrome DevTools abriendo `http://localhost:8000/docs` (o la URL del endpoint) en http://localhost:8000.
