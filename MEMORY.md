@@ -5,11 +5,13 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 ## Estado actual
 
 - Microservicio FastAPI + Motor con `/estadisticas/personajes`, `/estadisticas/atletas`, `/estadisticas/tripulaciones` y `/estadisticas/resumen`, con tests aislados en `onepiece_test`.
+- Automatización SDD instalada (igual que onepiece-app/frontend): skill `.agents/skills/sdd/`, comandos `/sdd-*` en `.opencode/commands/`, `docs/constitution.md` y reglas en `AGENTS.md`. Sin specs todavía.
 
 ## Decisiones (y por qué)
 
 - En WSL se usa el entorno `.venv-wsl` (en lugar de la carpeta `venv`, que es la de Windows) para evitar mezclar entornos entre sistemas. Si `python3-venv` no está instalado, crear con `python3 -m venv --without-pip .venv-wsl` e instalar con `python3 -m pip --python .venv-wsl/bin/python install -r requirements.txt` (el flag va **antes** del subcomando).
 - Instalar en `.venv-wsl` tarda (>10 min) porque el repo está en `/mnt/c` (drvfs). Para verificaciones rápidas se puede crear el venv en el disco ext4 de WSL (p. ej. `/tmp/...`) y lanzar `pytest -v` desde la raíz del repo; el resultado es idéntico.
+- SDD con pytest desde PowerShell: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest -v`. La `MONGODB_URI` apunta a `onepiece` (los tests solo la abren; con `/onepiece_test` el seguro `db.name != main.db.name` falla), y los tests escriben únicamente en `onepiece_test` (lo garantiza `tests/conftest.py`). El agente no ejecuta pytest ni uvicorn; Chrome DevTools solo lectura contra `http://localhost:8000`.
 - Los miembros de una tripulación son documentos de `personajes` **y** de `tripulantes`, igual que en `tripulacionController.js` del backend principal.
 - La lista de tripulaciones parte de la colección de tripulaciones, no de los miembros: así salen también las que tienen 0 miembros.
 - El nombre de la colección de tripulaciones se resuelve en runtime: la colección se llama `tripulacions` por la pluralización por defecto de Mongoose, y `coleccion_tripulaciones()` prueba `tripulaciones` primero por si se cambia el nombre.

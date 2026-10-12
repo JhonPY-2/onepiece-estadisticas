@@ -46,9 +46,14 @@ Repositorio: onepiece-estadisticas (microservicio FastAPI que expone `/estadisti
 - No usar la base `onepiece` de desarrollo (los tests usan solo `onepiece_test`).
 - No hacer commit ni push.
 - No instalar dependencias sin preguntar.
+- Leer `docs/constitution.md` y la spec activa (`specs/NNN-*/`) antes de tocar código (flujo SDD; comandos `/sdd-*`).
+- El agente no ejecuta `pytest` ni arranca `uvicorn`: los corre el usuario desde PowerShell con `venv\Scripts\python.exe`; el agente da el comando exacto.
+- Con Chrome DevTools, solo acciones de lectura (GET y `/docs`) contra `http://localhost:8000`; nunca escribir datos.
 - Siempre: actualizar `MEMORY.md` al terminar cada tarea.
 
 ## Verificación
 
 - Correr `pytest -v` desde la raíz y confirmar que pasa antes de dar una tarea por terminada.
+- El agente NO ejecuta tests ni servidores: da el comando exacto y los corre el usuario desde PowerShell (sin activar el entorno): `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest -v`.
+- La `MONGODB_URI` apunta a `onepiece` (los tests solo la abren); los tests escriben únicamente en `onepiece_test`, lo que garantiza `tests/conftest.py`.
 - Opcional: con `uvicorn` corriendo, los endpoints nuevos o modificados también se pueden comprobar con el MCP de Chrome DevTools abriendo `http://localhost:8000/docs` (o la URL del endpoint) en http://localhost:8000.
