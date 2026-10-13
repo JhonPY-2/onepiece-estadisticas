@@ -5,7 +5,7 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 ## Estado actual
 
 - Microservicio FastAPI + Motor con `/estadisticas/personajes`, `/estadisticas/atletas`, `/estadisticas/tripulaciones` y `/estadisticas/resumen`, con tests aislados en `onepiece_test`.
-- Automatización SDD instalada (igual que onepiece-app/frontend): skill `.agents/skills/sdd/`, comandos `/sdd-*` en `.opencode/commands/`, `docs/constitution.md` y reglas en `AGENTS.md`. Sin specs todavía.
+- Automatización SDD instalada (igual que onepiece-app/frontend): skill `.agents/skills/sdd/`, comandos `/sdd-*` en `.opencode/commands/`, `docs/constitution.md` (6 principios, refundido con tests/verificación e idioma) y reglas en `AGENTS.md`. Sin specs todavía.
 
 ## Decisiones (y por qué)
 
