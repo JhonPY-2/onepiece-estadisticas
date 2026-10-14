@@ -5,7 +5,7 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 ## Estado actual
 
 - Microservicio FastAPI + Motor con `/estadisticas/personajes`, `/estadisticas/atletas`, `/estadisticas/tripulaciones` y `/estadisticas/resumen`, con tests aislados en `onepiece_test`.
-- Automatización SDD instalada (igual que onepiece-app/frontend): skill `.agents/skills/sdd/`, comandos `/sdd-*` en `.opencode/commands/`, `docs/constitution.md` (6 principios, refundido con tests/verificación e idioma) y reglas en `AGENTS.md`. Sin specs todavía.
+- Automatización SDD instalada (igual que onepiece-app/frontend): skill `.agents/skills/sdd/`, comandos `/sdd-*` en `.opencode/commands/`, `docs/constitution.md` (6 principios, refundido con tests/verificación e idioma) y reglas en `AGENTS.md`. Primera spec `specs/001-resumen-recompensas/` en estado borrador.
 
 ## Decisiones (y por qué)
 
@@ -27,4 +27,4 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 
 ## Próximos pasos
 
-- (vacío por ahora)
+- Spec `001-resumen-recompensas`: tras aprobación, redactar `plan.md` y `tasks.md` (no implementar aún).
