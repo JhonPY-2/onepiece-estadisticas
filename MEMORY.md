@@ -5,7 +5,7 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 ## Estado actual
 
 - Microservicio FastAPI + Motor con `/estadisticas/personajes`, `/estadisticas/atletas`, `/estadisticas/tripulaciones` y `/estadisticas/resumen`, con tests aislados en `onepiece_test`.
-- Automatización SDD instalada (igual que onepiece-app/frontend): skill `.agents/skills/sdd/`, comandos `/sdd-*` en `.opencode/commands/`, `docs/constitution.md` (6 principios, refundido con tests/verificación e idioma) y reglas en `AGENTS.md`. Primera spec `specs/001-resumen-recompensas/` en estado borrador.
+- Automatización SDD instalada (igual que onepiece-app/frontend): skill `.agents/skills/sdd/`, comandos `/sdd-*` en `.opencode/commands/`, `docs/constitution.md` (6 principios, refundido con tests/verificación e idioma) y reglas en `AGENTS.md`. Primera spec `specs/001-resumen-recompensas/` (aprobada; T1-T3 completadas).
 
 ## Decisiones (y por qué)
 
@@ -27,4 +27,5 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 
 ## Próximos pasos
 
-- Spec `001-resumen-recompensas` (aprobada, plan/tasks listos): T1 completada y verificada (fixtures en `tests/conftest.py`). T2 completada y verificada (12 tests unitarios en `tests/test_recompensas_resumen.py`, helpers en `main.py`, suite completa 22 passed). Siguiente: T3 (modelo + endpoint con colección vacía), no iniciar sin confirmación.
+- Spec `001-resumen-recompensas` (aprobada, plan/tasks listos): T1 completada y verificada (fixtures en `tests/conftest.py`). T2 completada y verificada (helpers `normalizar_recompensa`/`promedio_recompensas` en `main.py` + 12 tests unitarios). T3 completada y verificada: modelo `RecompensasResumen` (5 campos `int`, `extra="forbid"`) y `GET /estadisticas/recompensas/resumen`; pytest **25 passed**; en `/docs` aparece la ruta y el GET devuelve JSON con los cinco campos enteros (verificado a mano en el navegador; el MCP de DevTools no está disponible en esta sesión).
+- **En T3 se adelantó la lógica de agregación de T4 y T5** (`total_recompensas`, `recompensa_maxima`, `recompensa_minima` y `promedio_recompensa`): el endpoint ya la calcula. Por eso **T4 y T5 ahora solo aportan los tests** que la cubren (no requieren código nuevo salvo fallo detectado). Siguiente: T4 (tests de conteo/total/máxima/mínima), **no iniciar sin confirmación**.

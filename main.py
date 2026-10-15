@@ -57,6 +57,16 @@ class Resumen(BaseModel):
     personaje_mayor_recompensa: Optional[PersonajeMayorRecompensa] = None
 
 
+class RecompensasResumen(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    cantidad_personajes: int
+    total_recompensas: int
+    promedio_recompensa: int
+    recompensa_maxima: int
+    recompensa_minima: int
+
+
 # ---------- Helpers de agregación ----------
 
 def normalizar_recompensa(valor):
@@ -215,4 +225,49 @@ async def estadisticas_resumen():
         "total_personajes": total_personajes,
         "total_atletas": total_atletas,
         "personaje_mayor_recompensa": mayor,
+    }
+
+
+@app.get("/estadisticas/recompensas/resumen", response_model=RecompensasResumen)
+async def estadisticas_recompensas_resumen():
+    cursor = db.personajes.find({}, {"recompensa": 1})
+
+    cantidad_personajes = 0
+    total_recompensas = 0
+    recompensa_maxima = 0
+    recompensa_minima = 0
+    primera = True
+
+    async for doc in cursor:
+        cantidad_personajes += 1
+        recompensa_norm = normalizar_recompensa(doc.get("recompensa"))
+        total_recompensas += recompensa_norm
+
+        if primera:
+            recompensa_maxima = recompensa_norm
+            recompensa_minima = recompensa_norm
+            primera = False
+        else:
+            if recompensa_norm > recompensa_maxima:
+                recompensa_maxima = recompensa_norm
+            if recompensa_norm < recompensa_minima:
+                recompensa_minima = recompensa_norm
+
+    if cantidad_personajes == 0:
+        return {
+            "cantidad_personajes": 0,
+            "total_recompensas": 0,
+            "promedio_recompensa": 0,
+            "recompensa_maxima": 0,
+            "recompensa_minima": 0,
+        }
+
+    promedio_recompensa = promedio_recompensas(total_recompensas, cantidad_personajes)
+
+    return {
+        "cantidad_personajes": cantidad_personajes,
+        "total_recompensas": total_recompensas,
+        "promedio_recompensa": promedio_recompensa,
+        "recompensa_maxima": recompensa_maxima,
+        "recompensa_minima": recompensa_minima,
     }
