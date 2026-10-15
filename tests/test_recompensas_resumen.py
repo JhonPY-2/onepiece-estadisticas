@@ -98,3 +98,75 @@ async def test_recompensas_resumen_put_no_permitido(cliente_http):
     """PUT a la misma ruta → 405."""
     res = await cliente_http.put("/estadisticas/recompensas/resumen", json={})
     assert res.status_code == 405
+
+
+# ---------- T4: Contar personajes y agregar total, máxima y mínima ----------
+
+async def test_recompensas_resumen_dos_recompensas_enteras(cliente_http, db_test):
+    """Dos recompensas enteras → cantidad=2, total, max, min correctos."""
+    await db_test.personajes.insert_many([
+        {"nombre": "Monkey D. Luffy", "recompensa": 3000000000},
+        {"nombre": "Roronoa Zoro", "recompensa": 1000000000},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 2
+    assert datos["total_recompensas"] == 4000000000
+    assert datos["recompensa_maxima"] == 3000000000
+    assert datos["recompensa_minima"] == 1000000000
+    assert datos["promedio_recompensa"] == 2000000000
+
+
+async def test_recompensas_resumen_recompensa_cero_participa_en_minimo(cliente_http, db_test):
+    """recompensa: 0 cuenta en cantidad, total y como mínimo."""
+    await db_test.personajes.insert_many([
+        {"nombre": "Personaje A", "recompensa": 1000},
+        {"nombre": "Personaje B", "recompensa": 0},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 2
+    assert datos["total_recompensas"] == 1000
+    assert datos["recompensa_maxima"] == 1000
+    assert datos["recompensa_minima"] == 0
+
+
+async def test_recompensas_resumen_null_y_ausente_cuentan_como_cero(cliente_http, db_test):
+    """null y campo ausente cuentan como 0 y participan en max/min."""
+    await db_test.personajes.insert_many([
+        {"nombre": "Con recompensa", "recompensa": 5000},
+        {"nombre": "Sin recompensa (null)", "recompensa": None},
+        {"nombre": "Sin campo recompensa"},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 3
+    assert datos["total_recompensas"] == 5000
+    assert datos["recompensa_maxima"] == 5000
+    assert datos["recompensa_minima"] == 0
+
+
+async def test_recompensas_resumen_no_entero_se_redondea_antes_de_agregar(cliente_http, db_test):
+    """Valores no enteros se redondean (half up) antes de sumar y comparar."""
+    await db_test.personajes.insert_many([
+        {"nombre": "A", "recompensa": 1.5},   # → 2
+        {"nombre": "B", "recompensa": 2.4},   # → 2
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 2
+    assert datos["total_recompensas"] == 4
+    assert datos["recompensa_maxima"] == 2
+    assert datos["recompensa_minima"] == 2

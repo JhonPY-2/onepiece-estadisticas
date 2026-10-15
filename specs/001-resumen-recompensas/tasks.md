@@ -28,7 +28,7 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Completada y verificada: pytest 25 passed; en `/docs` aparece `GET /estadisticas/recompensas/resumen` y el GET devuelve JSON con los cinco campos enteros (verificado a mano en el navegador; el MCP de DevTools no está disponible en esta sesión).
   - Nota (adelanto de T4/T5): **en T3 se adelantó también la lógica de agregación** (`total_recompensas`, `recompensa_maxima`, `recompensa_minima` y `promedio_recompensa`) que correspondía a T4 y T5; el endpoint ya la calcula recorriendo el cursor. Por eso **T4 y T5 ahora solo aportan los tests** que cubren esa lógica; no requieren cambios de código salvo que un test detecte un fallo.
 
-- [ ] **T4. Contar personajes y agregar total, máxima y mínima.** RF-3, RF-4, RF-6, RF-7
+- [x] **T4. Contar personajes y agregar total, máxima y mínima.** RF-3, RF-4, RF-6, RF-7
   - Nota (adelanto desde T3): el código de esta tarea (conteo, `total`, `recompensa_maxima` y `recompensa_minima`) **ya se implementó en T3**; esta tarea ahora aporta los tests que lo cubren.
   - Tests: con datos en `personajes`: dos recompensas enteras (Luffy `3000000000`, Zoro `1000000000`) → `cantidad_personajes=2`, `total_recompensas=4000000000`, `recompensa_maxima=3000000000`, `recompensa_minima=1000000000`; `recompensa: 0` participa (`min=0`); `null`/ausente cuenta como `0`; no entero se redondea **antes** de agregar (`1.5→2`, `2.4→2` → `total=4`, `max=2`).
   - Código: en el endpoint, dentro del recorrido del cursor, incrementar contador y acumular `total`, `recompensa_maxima` y `recompensa_minima` usando `normalizar_recompensa` (inicializar max/min con el primer valor).
