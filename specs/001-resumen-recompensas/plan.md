@@ -18,7 +18,7 @@ El agente **NO** ejecuta pytest ni arranca uvicorn: el usuario los corre desde P
 | Archivo | Acción | Responsabilidades |
 |---|---|---|
 | [`main.py`](../../main.py) | **Modificar** | Definir modelos Pydantic de respuesta (respuesta estricta con exactamente 5 campos). Añadir endpoint `GET /estadisticas/recompensas/resumen`. Reutilizar `db` existente, colección `personajes` (`db.personajes`). Aplicar reglas de normalización de `recompensa`: campo ausente o `null` → `0`; convertir a entero con redondeo `.5` hacia arriba **antes de agregar** (para total/máx/mín). Calcular promedio con **aritmética entera** (sin `float`/`Decimal`) con redondeo `.5` hacia arriba. Garantizar respuesta determinista y de solo lectura (sin escrituras). No modificar `/estadisticas/resumen`. |
-| [`tests/conftest.py`](../../tests/conftest.py) | **Sin cambios** (reutilizar) | Ya asegura aislamiento: conecta a `MONGODB_URI`, verifica `db.name != main.db.name`, hace monkeypatch de `main.db`, limpia colección `personajes` (y otras usadas) tras cada test. Usa base `onepiece_test`. Peticiones vía `httpx.ASGITransport`. |
+| [`tests/conftest.py`](../../tests/conftest.py) | **Modificar** | Hoy solo contiene el guard `pytest_collection_modifyitems` (aborta si un test no apunta a `onepiece_test`). Se **mueven** aquí las fixtures `db_test` y `cliente_http` (y la constante `NOMBRE_DB_TEST`) que actualmente viven en `tests/test_estadisticas.py`, sin cambiar su comportamiento, para que cualquier archivo de `tests/` las use. `db_test` asegura el aislamiento: conecta a `MONGODB_URI`, verifica `db.name != main.db.name`, hace monkeypatch de `main.db`, limpia la base `onepiece_test` tras cada test; `cliente_http` usa `httpx.ASGITransport`. `tests/test_estadisticas.py` debe seguir pasando. |
 | [`tests/test_recompensas_resumen.py`](../../tests/test_recompensas_resumen.py) | **Crear** | Tests de integración (pytest + pytest-asyncio + httpx) que cubren todos los RF y casos límite de la spec. Insertan datos directamente en Mongo (colección `personajes`), llaman al endpoint vía `TestClient`/ASGI, validan código 200, estructura JSON exacta (solo 5 campos, nombres exactos, valores enteros) y valores calculados. Verifican colección vacía (RF-8), personajes sin recompensas (RF-3–RF-7), `recompensa` `0`/`null`/ausente, valores no enteros con `.5`, promedio `.5` hacia arriba, caso un solo personaje. **No usan** base `onepiece`. |
 
 **Notas de arquitectura:**
@@ -158,14 +158,14 @@ Esto cumple RF-5.
 | **Leer colección con cursor `find({}, {"recompensa":1})` en un único recorrido, contando dentro del bucle** | Se obtiene `cantidad_personajes`, `total`, `max` y `min` en **una sola lectura** de los documentos. Sencillo, claro y eficiente. No requiere `count_documents` aparte. Si el contador queda en 0, se devuelve la respuesta con cinco ceros. | Usar `$group` con `$sum`, `$max`, `$min`, `$avg` (Mongo). `$avg` hace redondeo flotante y no garantiza “aritmética entera + .5 hacia arriba” tal como pide RF-5. Además hay que normalizar `null/ausente` (usar `$ifNull`/`$cond`) antes de agregar. Más complejo para cumplir regla exacta de promedio. También usar `count_documents` + recorrido: dos operaciones cuando hay datos. |
 | **Calcular promedio con fórmula entera `(total + cantidad // 2) // cantidad`** | Cumple RF-5 explícitamente (**sin `float` ni `Decimal`**) y regla `.5` hacia arriba. Determinista. | Usar `math.floor(total/count + 0.5)` (usa float) o `statistics.mean`/float: contradice RF-5. |
 | **Normalización centralizada con `math.floor(v + 0.5)` para valores no enteros** | Implementa exactamente la regla indicada (redondeo al entero más cercano, `.5` hacia arriba), cubre `int`, `float`, valores ausentes o `None`, y es clara y determinista para recompensas >= 0. | Duplicar lógica inline o usar otras estrategias de redondeo. |
-| **Tests de integración con httpx.ASGITransport + datos en Mongo real** | Siguen patrón existente en `tests/conftest.py` y casos de tests (usan DB real `onepiece_test`, monkeypatch de `main.db`). Reflejan comportamiento real con Motor. | Mockear DB: no valida interacción real con colección ni aislamiento. |
+| **Tests de integración con httpx.ASGITransport + datos en Mongo real** | Siguen el patrón existente, movido a `tests/conftest.py` (usa DB real `onepiece_test`, monkeypatch de `main.db`). Reflejan comportamiento real con Motor. | Mockear DB: no valida interacción real con colección ni aislamiento. |
 | **Contrato HTTP vía MCP Chrome DevTools (solo lectura)** | Cumple requisito obligatorio del plan: verificar ruta, método, código 200, estructura JSON en `/docs` y URL del endpoint contra `http://localhost:8000`. Solo lectura. | Solo tests unitarios: no validan contrato HTTP visible (FastAPI docs/response real). |
 
 ## 5. Estrategia de tests y verificación
 
 ### 5.1 Lógica y datos (pytest + pytest-asyncio + httpx)
 
-Crear `tests/test_recompensas_resumen.py` con tests independientes. Usar fixtures existentes (`client` o crear `AsyncClient` via `httpx.ASGITransport(app=main.app)`). Conexión Mongo gestionada por `conftest.py` (limpieza tras test).
+Crear `tests/test_recompensas_resumen.py` con tests independientes. Usar las fixtures `db_test` y `cliente_http` (movidas a `tests/conftest.py` desde `tests/test_estadisticas.py`). Conexión Mongo gestionada por `conftest.py` (limpieza tras test).
 
 **Datos de prueba (coherentes con estilo existente):** documentos con campos mínimos (`_id`, `nombre`, `recompensa` según caso). Usar ObjectId no necesario para estos tests.
 
@@ -235,13 +235,14 @@ Debe pasar todos los tests (incluyendo los nuevos). Los tests solo escriben en `
 | Precisión de redondeo (`.5`): confundir round half up vs banker's rounding | Usar `math.floor(v + 0.5)` para normalización y fórmula entera `(total + cantidad // 2) // cantidad` para promedio, con tests específicos para `.5` (agregado y promedio). |
 | Trabajar con `float`/`double` de Mongo para no enteros | Aplicar normalización explícita (detección de `int`/`float` y `math.floor(v + 0.5)`). Tests con `1.5`, `2.4`, `1500.7`. |
 | Modificar accidentalmente `/estadisticas/resumen` | Solo añadir nuevo endpoint y tests de regresión `test_recompensas_no_modifica_resumen_existente`. |
-| No usar base correcta en tests | Conftest garantiza `onepiece_test` y hace monkeypatch. Tests no configuran URI propia. |
+| No usar base correcta en tests | `conftest.py` centraliza el aislamiento: la fixture `db_test` (movida desde `tests/test_estadisticas.py`) garantiza `onepiece_test` y hace monkeypatch de `main.db`; el guard `pytest_collection_modifyitems` sigue abortando si un test apunta a otra base. Los tests no configuran URI propia. |
 
 ## 8. Entregables
 
 - [`main.py`](../../main.py) modificado (nuevo endpoint + modelos).
 - [`tests/test_recompensas_resumen.py`](../../tests/test_recompensas_resumen.py) creado (13 tests según tabla).
-- Plan [`specs/001-resumen-recompensas/plan.md`](./plan.md) generado (este archivo).
+- [`tests/conftest.py`](../../tests/conftest.py) modificado (mueve `NOMBRE_DB_TEST`, `db_test` y `cliente_http` desde `tests/test_estadisticas.py` para compartirlas entre tests).
+- Plan [`specs/001-resumen-recompensas/plan.md`](./plan.md) actualizado (este archivo).
 
 ## 9. Verificación final (comandos usuario)
 
