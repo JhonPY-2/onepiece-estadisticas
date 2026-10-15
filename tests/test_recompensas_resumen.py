@@ -3,6 +3,7 @@
 
 T2: helpers de normalización y promedio (unitarios).
 T3: modelo de respuesta y endpoint con colección vacía (integración).
+T9: seis campos exactos y RF-10 `personajes_sin_recompensa` (en rojo hasta T10).
 """
 import pytest
 
@@ -66,7 +67,7 @@ def test_promedio_recompensas_sin_personajes():
 # ---------- T3: integración con colección vacía ----------
 
 async def test_recompensas_resumen_coleccion_vacia(cliente_http):
-    """GET /estadisticas/recompensas/resumen con colección vacía → 200 y cinco ceros."""
+    """GET /estadisticas/recompensas/resumen con colección vacía → 200 y seis ceros."""
     res = await cliente_http.get("/estadisticas/recompensas/resumen")
 
     assert res.status_code == 200
@@ -77,14 +78,16 @@ async def test_recompensas_resumen_coleccion_vacia(cliente_http):
         "promedio_recompensa": 0,
         "recompensa_maxima": 0,
         "recompensa_minima": 0,
+        "personajes_sin_recompensa": 0,
     }
-    # Exactamente 5 campos, sin extras
+    # Exactamente 6 campos, sin extras
     assert set(datos.keys()) == {
         "cantidad_personajes",
         "total_recompensas",
         "promedio_recompensa",
         "recompensa_maxima",
         "recompensa_minima",
+        "personajes_sin_recompensa",
     }
 
 
@@ -258,7 +261,7 @@ async def test_estadisticas_resumen_regresion_sin_campos_nuevos(cliente_http, db
 
 
 async def test_recompensas_resumen_sin_recompensas_cuatro_campos_cero(cliente_http, db_test):
-    """3 personajes sin recompensa/null → cantidad > 0 y los otros cuatro en 0."""
+    """3 personajes sin recompensa/null/0 → cuatro campos en 0 y los 3 sin recompensa."""
     await db_test.personajes.insert_many([
         {"nombre": "A"},
         {"nombre": "B", "recompensa": None},
@@ -269,11 +272,21 @@ async def test_recompensas_resumen_sin_recompensas_cuatro_campos_cero(cliente_ht
 
     assert res.status_code == 200
     datos = res.json()
+    assert set(datos.keys()) == {
+        "cantidad_personajes",
+        "total_recompensas",
+        "promedio_recompensa",
+        "recompensa_maxima",
+        "recompensa_minima",
+        "personajes_sin_recompensa",
+    }
     assert datos["cantidad_personajes"] == 3
     assert datos["total_recompensas"] == 0
     assert datos["promedio_recompensa"] == 0
     assert datos["recompensa_maxima"] == 0
     assert datos["recompensa_minima"] == 0
+    assert datos["personajes_sin_recompensa"] == 3
+    assert datos["personajes_sin_recompensa"] == datos["cantidad_personajes"]
 
 
 async def test_recompensas_resumen_unico_personaje_con_decimal_redondeado(cliente_http, db_test):
@@ -308,3 +321,75 @@ async def test_recompensas_resumen_unico_personaje_sin_recompensa(cliente_http, 
     assert datos["promedio_recompensa"] == 0
     assert datos["recompensa_maxima"] == 0
     assert datos["recompensa_minima"] == 0
+
+
+# ---------- T9: seis campos exactos y RF-10 personajes_sin_recompensa ----------
+
+
+async def test_recompensas_estructura_solo_seis_campos(cliente_http, db_test):
+    """Con datos, el JSON tiene exactamente los seis campos y todos enteros."""
+    await db_test.personajes.insert_many([
+        {"nombre": "A", "recompensa": 1000},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert set(datos.keys()) == {
+        "cantidad_personajes",
+        "total_recompensas",
+        "promedio_recompensa",
+        "recompensa_maxima",
+        "recompensa_minima",
+        "personajes_sin_recompensa",
+    }
+    assert all(isinstance(valor, int) for valor in datos.values())
+    assert datos["personajes_sin_recompensa"] == 0
+
+
+async def test_recompensas_mezcla_cero_null_ausente_y_0_4(cliente_http, db_test):
+    """Mezcla 0/null/ausente/0.4/1000 → 4 de 5 personajes sin recompensa."""
+    await db_test.personajes.insert_many([
+        {"nombre": "A", "recompensa": 0},
+        {"nombre": "B", "recompensa": None},
+        {"nombre": "C"},
+        {"nombre": "D", "recompensa": 0.4},
+        {"nombre": "E", "recompensa": 1000},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    assert res.json() == {
+        "cantidad_personajes": 5,
+        "total_recompensas": 1000,
+        "promedio_recompensa": 200,
+        "recompensa_maxima": 1000,
+        "recompensa_minima": 0,
+        "personajes_sin_recompensa": 4,
+    }
+
+
+async def test_recompensas_resumen_sin_ninguna_recompensa(cliente_http, db_test):
+    """Ningún personaje con recompensa → personajes_sin_recompensa == cantidad."""
+    await db_test.personajes.insert_many([
+        {"nombre": "A"},
+        {"nombre": "B", "recompensa": None},
+        {"nombre": "C", "recompensa": 0},
+        {"nombre": "D", "recompensa": 0.4},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos == {
+        "cantidad_personajes": 4,
+        "total_recompensas": 0,
+        "promedio_recompensa": 0,
+        "recompensa_maxima": 0,
+        "recompensa_minima": 0,
+        "personajes_sin_recompensa": 4,
+    }
+    assert datos["personajes_sin_recompensa"] == datos["cantidad_personajes"]
