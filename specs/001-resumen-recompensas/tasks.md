@@ -11,7 +11,7 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
 
 ## Tareas
 
-- [ ] **T1. Mover las fixtures compartidas a `conftest.py`.** (Preparación, sin RF nuevos)
+- [x] **T1. Mover las fixtures compartidas a `conftest.py`.** (Preparación, sin RF nuevos)
   - Tests: sin tests nuevos; debe seguir pasando toda la suite existente.
   - Código: mover `NOMBRE_DB_TEST`, la fixture `db_test` y la fixture `cliente_http` desde `tests/test_estadisticas.py` a `tests/conftest.py` sin cambiar su comportamiento; `tests/test_estadisticas.py` debe seguir funcionando (las fixtures pasan a estar disponibles para cualquier archivo de `tests/`).
   - Hecho cuando: el usuario corre `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest -v` y pasan los mismos tests que antes, sin tests nuevos.

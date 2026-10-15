@@ -27,4 +27,4 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 
 ## Próximos pasos
 
-- Spec `001-resumen-recompensas`: tras aprobación, redactar `plan.md` y `tasks.md` (no implementar aún).
+- Spec `001-resumen-recompensas` (aprobada, plan/tasks listos): T1 completada y verificada (10 tests pasan; fixtures `NOMBRE_DB_TEST`, `db_test`, `cliente_http` en `tests/conftest.py`). Siguiente: T2 (helpers + tests unitarios), no iniciar sin confirmación.

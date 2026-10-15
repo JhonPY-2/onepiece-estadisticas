@@ -1,14 +1,5 @@
 # tests/test_estadisticas.py
-import os
-
-import httpx
-import pytest
 from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorClient
-
-import main  # al importarlo, main.py ejecuta load_dotenv() y carga tu .env
-
-NOMBRE_DB_TEST = "onepiece_test"
 
 PERSONAJES = [
     {"nombre": "Monkey D. Luffy", "recompensa": 3000000000, "tripulacion": "Sombrero de Paja"},
@@ -45,32 +36,6 @@ TRIPULANTES = [
     {"nombre": "Sanji", "tripulacion": ID_PAJA},
     {"nombre": "Hachi", "tripulacion": ID_BARBANEGRA},
 ]
-
-
-@pytest.fixture
-async def db_test(monkeypatch):
-    """Base de datos de prueba: vacía al empezar y borrada al terminar."""
-    cliente = AsyncIOMotorClient(os.getenv("MONGODB_URI"))
-    db = cliente[NOMBRE_DB_TEST]
-
-    # Seguro: jamás trabajar sobre tu base de datos real
-    assert db.name != main.db.name
-
-    await cliente.drop_database(NOMBRE_DB_TEST)
-    monkeypatch.setattr(main, "db", db)  # main.py ahora usa la BD de prueba
-
-    yield db
-
-    await cliente.drop_database(NOMBRE_DB_TEST)
-    cliente.close()
-
-
-@pytest.fixture
-async def cliente_http(db_test):
-    """Cliente que llama a tu app FastAPI directamente, sin levantar uvicorn."""
-    transporte = httpx.ASGITransport(app=main.app, raise_app_exceptions=False)
-    async with httpx.AsyncClient(transport=transporte, base_url="http://test") as cliente:
-        yield cliente
 
 
 async def test_raiz(cliente_http):
