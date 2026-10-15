@@ -30,6 +30,7 @@ Repositorio: onepiece-estadisticas (microservicio FastAPI que expone `/estadisti
 - `.env` local con `MONGODB_URI=mongodb://localhost:27017/onepiece`. `.gitignore` excluye `venv/`, `.env`, `__pycache__/`, `.pytest_cache/`.
 - Python 3.12 (Docker/CI). Sin herramientas de lint/typecheck/format.
 - README enlaza a proyecto principal: https://github.com/JhonPY-2/onepiece-app.
+- **Idioma:** Los mensajes, resúmenes y explicaciones del agente siempre son en español; el código y los nombres técnicos pueden quedar como están.
 
 ## Memoria
 
