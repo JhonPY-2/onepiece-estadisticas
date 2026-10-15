@@ -16,7 +16,7 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Código: mover `NOMBRE_DB_TEST`, la fixture `db_test` y la fixture `cliente_http` desde `tests/test_estadisticas.py` a `tests/conftest.py` sin cambiar su comportamiento; `tests/test_estadisticas.py` debe seguir funcionando (las fixtures pasan a estar disponibles para cualquier archivo de `tests/`).
   - Hecho cuando: el usuario corre `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest -v` y pasan los mismos tests que antes, sin tests nuevos.
 
-- [ ] **T2. Helpers de normalización y promedio con tests unitarios.** RF-4, RF-5
+- [x] **T2. Helpers de normalización y promedio con tests unitarios.** RF-4, RF-5
   - Tests: crear `tests/test_recompensas_resumen.py` con `NOMBRE_DB_TEST = "onepiece_test"` y tests unitarios de `normalizar_recompensa` (`None→0`, `1000→1000`, `1.5→2`, `2.4→2`, `1500.7→1501`, `0→0`) y de `promedio_recompensas` (`(3,2)→2`, `(2,2)→1`, `(5,2)→3`, `(0,3)→0`, `(4,3)→1`, `(10,0)→0`). Deben quedar en rojo (las funciones aún no existen).
   - Código: en `main.py`, bloque de helpers de agregación, definir `normalizar_recompensa(valor)` (ausente/`None`→`0`; `int` tal cual; no entero → `math.floor(v + 0.5)`) y `promedio_recompensas(total, cantidad)` (`0` si `cantidad == 0`; si no `(total + cantidad // 2) // cantidad`), sin `float`/`Decimal`.
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest tests/test_recompensas_resumen.py -k "normalizar or promedio" -v` pasa en verde.

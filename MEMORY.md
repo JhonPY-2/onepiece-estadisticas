@@ -27,4 +27,4 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 
 ## Próximos pasos
 
-- Spec `001-resumen-recompensas` (aprobada, plan/tasks listos): T1 completada y verificada (10 tests pasan; fixtures `NOMBRE_DB_TEST`, `db_test`, `cliente_http` en `tests/conftest.py`). Siguiente: T2 (helpers + tests unitarios), no iniciar sin confirmación.
+- Spec `001-resumen-recompensas` (aprobada, plan/tasks listos): T1 completada y verificada (fixtures en `tests/conftest.py`). T2 completada y verificada (12 tests unitarios en `tests/test_recompensas_resumen.py`, helpers en `main.py`, suite completa 22 passed). Siguiente: T3 (modelo + endpoint con colección vacía), no iniciar sin confirmación.

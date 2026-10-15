@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
+import math
 import os
 
 
@@ -54,6 +55,32 @@ class Resumen(BaseModel):
     total_personajes: int
     total_atletas: int
     personaje_mayor_recompensa: Optional[PersonajeMayorRecompensa] = None
+
+
+# ---------- Helpers de agregación ----------
+
+def normalizar_recompensa(valor):
+    """Convierte una recompensa a entero: ausente/None -> 0, no entero -> half up."""
+    if valor is None:
+        return 0
+    if isinstance(valor, int):
+        return valor
+    if isinstance(valor, float):
+        return math.floor(valor + 0.5)
+    try:
+        v = float(valor)
+        if v.is_integer():
+            return int(v)
+        return math.floor(v + 0.5)
+    except (TypeError, ValueError):
+        return 0
+
+
+def promedio_recompensas(total: int, cantidad: int) -> int:
+    """Promedio entero con redondeo half up, sin float ni Decimal."""
+    if cantidad == 0:
+        return 0
+    return (total + cantidad // 2) // cantidad
 
 
 # ---------- Endpoints ----------
