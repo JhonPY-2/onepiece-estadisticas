@@ -41,10 +41,11 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Hecho cuando: Chrome DevTools → `GET http://localhost:8000/estadisticas/recompensas/resumen` responde `200` con `promedio_recompensa` entero y coherente con lo que muestra el `GET /estadisticas/personajes` existente (solo lectura), no `float`; tests en verde.
   - Completada y verificada: pytest 22 passed; los 3 tests de promedio a nivel de endpoint pasan en verde sin que antes estuvieran en rojo porque la lógica (función `promedio_recompensas` y su uso en el endpoint) ya existía desde T3; no hubo cambios en `main.py`.
 
-- [ ] **T6. Casos límite: sin recompensas y un solo personaje.** RF-3, RF-4, RF-5, RF-6, RF-7
+- [x] **T6. Casos límite: sin recompensas y un solo personaje.** RF-3, RF-4, RF-5, RF-6, RF-7
   - Tests: 3 personajes sin `recompensa`/`null` → `cantidad_personajes=3` y los otros cuatro campos en `0`; un único personaje `1500.7` → los cinco campos coherentes con `1501`; un único personaje sin recompensa → `cantidad=1` y resto `0`.
-  - Código: sin cambios de código esperados; si algún test falla, corregir la inicialización de `recompensa_maxima`/`recompensa_minima`.
+  - Código: sin cambios de código esperados; la inicialización de `recompensa_maxima`/`recompensa_minima` en T3 ya cubría el caso (primera iteración).
   - Hecho cuando: Chrome DevTools → `GET http://localhost:8000/estadisticas/recompensas/resumen` responde `200` con los 5 campos y valores coherentes con lo que muestra el `GET /estadisticas/personajes` existente (solo lectura) en cada caso; tests en verde.
+  - Completada y verificada: `tests/test_recompensas_resumen.py` - 25 passed en verde a la primera; los 3 tests de T6 pasan porque la lógica de T3-T5 ya cubría los casos límite (sin recompensas y un solo personaje). No se modificó `main.py`.
 
 - [ ] **T7. Regresión: `/estadisticas/resumen` no cambia.** Criterios de finalización
   - Tests: `GET /estadisticas/resumen` con datos → sigue devolviendo `200` y su estructura propia (`total_personajes`, `total_atletas`, `personaje_mayor_recompensa`) sin campos nuevos.

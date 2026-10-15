@@ -220,3 +220,59 @@ async def test_recompensas_resumen_promedio_enteros_grandes(cliente_http, db_tes
     assert datos["cantidad_personajes"] == 2
     assert datos["total_recompensas"] == 4000000000
     assert datos["promedio_recompensa"] == 2000000000
+
+
+# ---------- T6: Casos límite: sin recompensas y un solo personaje ----------
+
+
+async def test_recompensas_resumen_sin_recompensas_cuatro_campos_cero(cliente_http, db_test):
+    """3 personajes sin recompensa/null → cantidad > 0 y los otros cuatro en 0."""
+    await db_test.personajes.insert_many([
+        {"nombre": "A"},
+        {"nombre": "B", "recompensa": None},
+        {"nombre": "C", "recompensa": 0},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 3
+    assert datos["total_recompensas"] == 0
+    assert datos["promedio_recompensa"] == 0
+    assert datos["recompensa_maxima"] == 0
+    assert datos["recompensa_minima"] == 0
+
+
+async def test_recompensas_resumen_unico_personaje_con_decimal_redondeado(cliente_http, db_test):
+    """Un único personaje con 1500.7 → todos coherentes con 1501."""
+    await db_test.personajes.insert_many([
+        {"nombre": "Único", "recompensa": 1500.7},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 1
+    assert datos["total_recompensas"] == 1501
+    assert datos["promedio_recompensa"] == 1501
+    assert datos["recompensa_maxima"] == 1501
+    assert datos["recompensa_minima"] == 1501
+
+
+async def test_recompensas_resumen_unico_personaje_sin_recompensa(cliente_http, db_test):
+    """Un único personaje sin recompensa → cantidad=1 y resto 0."""
+    await db_test.personajes.insert_many([
+        {"nombre": "Único"},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 1
+    assert datos["total_recompensas"] == 0
+    assert datos["promedio_recompensa"] == 0
+    assert datos["recompensa_maxima"] == 0
+    assert datos["recompensa_minima"] == 0
