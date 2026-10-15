@@ -34,11 +34,12 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Código: en el endpoint, dentro del recorrido del cursor, incrementar contador y acumular `total`, `recompensa_maxima` y `recompensa_minima` usando `normalizar_recompensa` (inicializar max/min con el primer valor).
   - Hecho cuando: Chrome DevTools → `GET http://localhost:8000/estadisticas/recompensas/resumen` responde `200` con los valores coherentes y que coinciden con lo que muestra el `GET /estadisticas/personajes` existente (solo lectura), y `recompensa_maxima` es un **número** (sin nombre); tests en verde.
 
-- [ ] **T5. Calcular el promedio con aritmética entera.** RF-5
+- [x] **T5. Calcular el promedio con aritmética entera.** RF-5
   - Nota (adelanto desde T3): el cálculo de `promedio_recompensa` con aritmética entera **ya se implementó en T3**; esta tarea ahora aporta los tests que lo cubren.
   - Tests: `{1, 2}` (total 3, 2 personajes) → `promedio_recompensa=2`; `{0, 5}` → `3`; caso entero `{3000000000, 1000000000}` → `2000000000`.
   - Código: en el endpoint, calcular `promedio_recompensa = promedio_recompensas(total, contador)` y devolver el modelo con los cinco enteros.
   - Hecho cuando: Chrome DevTools → `GET http://localhost:8000/estadisticas/recompensas/resumen` responde `200` con `promedio_recompensa` entero y coherente con lo que muestra el `GET /estadisticas/personajes` existente (solo lectura), no `float`; tests en verde.
+  - Completada y verificada: pytest 22 passed; los 3 tests de promedio a nivel de endpoint pasan en verde sin que antes estuvieran en rojo porque la lógica (función `promedio_recompensas` y su uso en el endpoint) ya existía desde T3; no hubo cambios en `main.py`.
 
 - [ ] **T6. Casos límite: sin recompensas y un solo personaje.** RF-3, RF-4, RF-5, RF-6, RF-7
   - Tests: 3 personajes sin `recompensa`/`null` → `cantidad_personajes=3` y los otros cuatro campos en `0`; un único personaje `1500.7` → los cinco campos coherentes con `1501`; un único personaje sin recompensa → `cantidad=1` y resto `0`.

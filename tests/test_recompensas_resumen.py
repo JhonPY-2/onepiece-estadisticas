@@ -170,3 +170,53 @@ async def test_recompensas_resumen_no_entero_se_redondea_antes_de_agregar(client
     assert datos["total_recompensas"] == 4
     assert datos["recompensa_maxima"] == 2
     assert datos["recompensa_minima"] == 2
+
+
+# ---------- T5: Calcular el promedio con aritmética entera ----------
+
+async def test_recompensas_resumen_promedio_medio_hacia_arriba(cliente_http, db_test):
+    """Promedio con fracción .5 → redondea hacia arriba (1.5 → 2)."""
+    await db_test.personajes.insert_many([
+        {"nombre": "A", "recompensa": 1},
+        {"nombre": "B", "recompensa": 2},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 2
+    assert datos["total_recompensas"] == 3
+    assert datos["promedio_recompensa"] == 2
+
+
+async def test_recompensas_resumen_promedio_otro_medio_hacia_arriba(cliente_http, db_test):
+    """Otro caso promedio .5 → hacia arriba (2.5 → 3)."""
+    await db_test.personajes.insert_many([
+        {"nombre": "A", "recompensa": 0},
+        {"nombre": "B", "recompensa": 5},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 2
+    assert datos["total_recompensas"] == 5
+    assert datos["promedio_recompensa"] == 3
+
+
+async def test_recompensas_resumen_promedio_enteros_grandes(cliente_http, db_test):
+    """Promedio con enteros grandes (Luffy/Zoro) → 2000000000."""
+    await db_test.personajes.insert_many([
+        {"nombre": "Monkey D. Luffy", "recompensa": 3000000000},
+        {"nombre": "Roronoa Zoro", "recompensa": 1000000000},
+    ])
+
+    res = await cliente_http.get("/estadisticas/recompensas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert datos["cantidad_personajes"] == 2
+    assert datos["total_recompensas"] == 4000000000
+    assert datos["promedio_recompensa"] == 2000000000
