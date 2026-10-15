@@ -47,10 +47,11 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Hecho cuando: Chrome DevTools → `GET http://localhost:8000/estadisticas/recompensas/resumen` responde `200` con los 5 campos y valores coherentes con lo que muestra el `GET /estadisticas/personajes` existente (solo lectura) en cada caso; tests en verde.
   - Completada y verificada: `tests/test_recompensas_resumen.py` - 25 passed en verde a la primera; los 3 tests de T6 pasan porque la lógica de T3-T5 ya cubría los casos límite (sin recompensas y un solo personaje). No se modificó `main.py`.
 
-- [ ] **T7. Regresión: `/estadisticas/resumen` no cambia.** Criterios de finalización
+- [x] **T7. Regresión: `/estadisticas/resumen` no cambia.** Criterios de finalización
   - Tests: `GET /estadisticas/resumen` con datos → sigue devolviendo `200` y su estructura propia (`total_personajes`, `total_atletas`, `personaje_mayor_recompensa`) sin campos nuevos.
   - Código: ninguno en `/estadisticas/resumen`; confirmar que solo se añadió el nuevo endpoint.
   - Hecho cuando: Chrome DevTools → `GET http://localhost:8000/estadisticas/resumen` responde `200` con su forma original; test en verde.
+  - Completada y verificada: añadido test de regresión `test_estadisticas_resumen_regresion_sin_campos_nuevos` en `tests/test_recompensas_resumen.py`; los 36 tests (`tests/test_recompensas_resumen.py` + `tests/test_estadisticas.py`) pasaron en verde a la primera, porque `/estadisticas/resumen` no se modificó. No se tocó `main.py`.
 
 - [ ] **T8. Verificación final de contrato y criterios de finalización.** RF-1–RF-9
   - Tests: correr la suite completa y confirmar que todos los RF y criterios de la spec se cumplen.

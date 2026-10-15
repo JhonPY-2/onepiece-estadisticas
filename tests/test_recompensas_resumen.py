@@ -222,6 +222,38 @@ async def test_recompensas_resumen_promedio_enteros_grandes(cliente_http, db_tes
     assert datos["promedio_recompensa"] == 2000000000
 
 
+# ---------- T7: Regresión de /estadisticas/resumen ----------
+
+
+async def test_estadisticas_resumen_regresion_sin_campos_nuevos(cliente_http, db_test):
+    """GET /estadisticas/resumen con datos sigue con su estructura original."""
+    await db_test.personajes.insert_many([
+        {"nombre": "Monkey D. Luffy", "recompensa": 3000000000},
+        {"nombre": "Roronoa Zoro", "recompensa": 1000000000},
+    ])
+    await db_test.atletas.insert_many([
+        {"nombre": "Atleta 1", "equipo": "Equipo A"},
+        {"nombre": "Atleta 2", "equipo": "Equipo A"},
+        {"nombre": "Atleta 3", "equipo": "Equipo B"},
+    ])
+
+    res = await cliente_http.get("/estadisticas/resumen")
+
+    assert res.status_code == 200
+    datos = res.json()
+    assert set(datos.keys()) == {
+        "total_personajes",
+        "total_atletas",
+        "personaje_mayor_recompensa",
+    }
+    assert datos["total_personajes"] == 2
+    assert datos["total_atletas"] == 3
+    assert datos["personaje_mayor_recompensa"] == {
+        "nombre": "Monkey D. Luffy",
+        "recompensa": 3000000000,
+    }
+
+
 # ---------- T6: Casos límite: sin recompensas y un solo personaje ----------
 
 
