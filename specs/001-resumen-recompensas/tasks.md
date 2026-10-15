@@ -53,7 +53,8 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Hecho cuando: Chrome DevTools → `GET http://localhost:8000/estadisticas/resumen` responde `200` con su forma original; test en verde.
   - Completada y verificada: añadido test de regresión `test_estadisticas_resumen_regresion_sin_campos_nuevos` en `tests/test_recompensas_resumen.py`; los 36 tests (`tests/test_recompensas_resumen.py` + `tests/test_estadisticas.py`) pasaron en verde a la primera, porque `/estadisticas/resumen` no se modificó. No se tocó `main.py`.
 
-- [ ] **T8. Verificación final de contrato y criterios de finalización.** RF-1–RF-9
+- [x] **T8. Verificación final de contrato y criterios de finalización.** RF-1–RF-9
   - Tests: correr la suite completa y confirmar que todos los RF y criterios de la spec se cumplen.
   - Código: ninguno.
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest -v` pasa en verde y Chrome DevTools confirma en `/docs` y en `GET /estadisticas/recompensas/resumen` el código `200` y los 5 campos exactos.
+  - Completada y verificada: suite completa **36 passed** (`tests/test_recompensas_resumen.py` + `tests/test_estadisticas.py`). En `/docs` aparece `GET /estadisticas/recompensas/resumen` junto a `/estadisticas/resumen`. Verificación manual en navegador (solo lectura): `GET http://localhost:8000/estadisticas/recompensas/resumen` → código `200`, `Content-Type: application/json`, exactamente 5 campos enteros: `cantidad_personajes=20`, `total_recompensas=14451509000`, `promedio_recompensa=722575450` (coincide con total/cantidad), `recompensa_maxima=3996000000`, `recompensa_minima=1000`. `POST` y `PUT` → `405` verificados por los tests (no por navegador). No se tocó `main.py` ni ningún test.
