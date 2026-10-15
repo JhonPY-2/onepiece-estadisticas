@@ -65,10 +65,11 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest tests/test_recompensas_resumen.py -v` falla (al menos los tests que exigen seis campos) y el fallo es claramente por la ausencia del sexto campo o por la espera de cinco campos; no se ha modificado `main.py`.
   - Completada y verificada: añadidos 3 tests nuevos (`test_recompensas_estructura_solo_seis_campos`, `test_recompensas_mezcla_cero_null_ausente_y_0_4`, `test_recompensas_resumen_sin_ninguna_recompensa`) y actualizados 2 existentes (colección vacía y sin recompensas) a seis campos en `tests/test_recompensas_resumen.py`. Corrido por el usuario: **5 failed, 24 passed** en rojo **a propósito** (todos `AssertionError` por falta de `personajes_sin_recompensa`), sin tocar `main.py`.
 
-- [ ] **T10. Modelo de seis campos y contador en el recorrido hasta verde.** RF-10
+- [x] **T10. Modelo de seis campos y contador en el recorrido hasta verde.** RF-10
   - Tests: Los tests añadidos/actualizados en T9 ya existen (pero fallan); esta tarea hace pasar esos tests.
   - Código: Añadir `personajes_sin_recompensa: int` al modelo `RecompensasResumen` (manteniendo `extra="forbid"`). En el endpoint, inicializar `personajes_sin_recompensa = 0` (o `sin_recompensa`), contar en el mismo recorrido del cursor: cuando `recompensa_norm == 0` se incrementa el contador (incluye `0`, `null`, ausente y valores que redondean a `0`). Si `cantidad_personajes == 0`, devolver seis campos a `0`. Si `cantidad_personajes > 0`, incluir `personajes_sin_recompensa` en la respuesta. No realizar una segunda consulta.
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest tests/test_recompensas_resumen.py -v` pasa en verde; `main.py` solo se ha modificado para añadir el sexto campo y el contador del mismo recorrido.
+  - Completada y verificada: corrido por el usuario tras T10 → **39 passed** (suite completa; los 5 en rojo por T9 ya pasan). `git diff` de `main.py` = 7 líneas añadidas (campo `personajes_sin_recompensa` en el modelo, contador inicial, `if recompensa_norm == 0` dentro del bucle y el campo en los dos `return`). No se tocaron tests, spec ni plan.
 
 - [ ] **T11. Verificación final: suite completa en verde, /docs y GET real en solo lectura con seis campos.** RF-1–RF-10
   - Tests: Correr la suite completa.

@@ -65,6 +65,7 @@ class RecompensasResumen(BaseModel):
     promedio_recompensa: int
     recompensa_maxima: int
     recompensa_minima: int
+    personajes_sin_recompensa: int
 
 
 # ---------- Helpers de agregación ----------
@@ -236,12 +237,16 @@ async def estadisticas_recompensas_resumen():
     total_recompensas = 0
     recompensa_maxima = 0
     recompensa_minima = 0
+    personajes_sin_recompensa = 0
     primera = True
 
     async for doc in cursor:
         cantidad_personajes += 1
         recompensa_norm = normalizar_recompensa(doc.get("recompensa"))
         total_recompensas += recompensa_norm
+
+        if recompensa_norm == 0:
+            personajes_sin_recompensa += 1
 
         if primera:
             recompensa_maxima = recompensa_norm
@@ -260,6 +265,7 @@ async def estadisticas_recompensas_resumen():
             "promedio_recompensa": 0,
             "recompensa_maxima": 0,
             "recompensa_minima": 0,
+            "personajes_sin_recompensa": 0,
         }
 
     promedio_recompensa = promedio_recompensas(total_recompensas, cantidad_personajes)
@@ -270,4 +276,5 @@ async def estadisticas_recompensas_resumen():
         "promedio_recompensa": promedio_recompensa,
         "recompensa_maxima": recompensa_maxima,
         "recompensa_minima": recompensa_minima,
+        "personajes_sin_recompensa": personajes_sin_recompensa,
     }
