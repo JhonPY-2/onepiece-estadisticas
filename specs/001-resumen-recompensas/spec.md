@@ -1,6 +1,6 @@
 # specs/001-resumen-recompensas/spec.md
 
-**Estado: aprobada**
+**Estado: implementada**
 
 ## Contexto y objetivo
 El microservicio expone estadísticas agregadas de `personajes`, `atletas` y `tripulaciones`,

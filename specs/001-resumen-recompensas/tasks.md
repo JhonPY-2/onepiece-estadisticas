@@ -1,6 +1,6 @@
 # Tasks: specs/001-resumen-recompensas/tasks.md
 
-**Estado: aprobada**
+**Estado: implementada**
 
 **Spec de referencia:** [`specs/001-resumen-recompensas/spec.md`](./spec.md) – aprobada.
 **Plan:** [`specs/001-resumen-recompensas/plan.md`](./plan.md).
@@ -27,6 +27,7 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Hecho cuando: Chrome DevTools → `GET http://localhost:8000/estadisticas/recompensas/resumen` responde `200`, `Content-Type: application/json` y JSON con **exactamente** esos 5 campos; el endpoint aparece en `http://localhost:8000/docs`. El `405` de `POST`/`PUT` se verifica solo con los tests. Tests en verde.
   - Completada y verificada: pytest 25 passed; en `/docs` aparece `GET /estadisticas/recompensas/resumen` y el GET devuelve JSON con los cinco campos enteros (verificado a mano en el navegador; el MCP de DevTools no está disponible en esta sesión).
   - Nota (adelanto de T4/T5): **en T3 se adelantó también la lógica de agregación** (`total_recompensas`, `recompensa_maxima`, `recompensa_minima` y `promedio_recompensa`) que correspondía a T4 y T5; el endpoint ya la calcula recorriendo el cursor. Por eso **T4 y T5 ahora solo aportan los tests** que cubren esa lógica; no requieren cambios de código salvo que un test detecte un fallo.
+Nota: hasta T8 el contrato era de cinco campos; con RF-10 (T9-T11) pasa a seis.
 
 - [x] **T4. Contar personajes y agregar total, máxima y mínima.** RF-3, RF-4, RF-6, RF-7
   - Nota (adelanto desde T3): el código de esta tarea (conteo, `total`, `recompensa_maxima` y `recompensa_minima`) **ya se implementó en T3**; esta tarea ahora aporta los tests que lo cubren.
@@ -58,6 +59,7 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Código: ninguno.
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest -v` pasa en verde y Chrome DevTools confirma en `/docs` y en `GET /estadisticas/recompensas/resumen` el código `200` y los 5 campos exactos.
   - Completada y verificada: suite completa **36 passed** (`tests/test_recompensas_resumen.py` + `tests/test_estadisticas.py`). En `/docs` aparece `GET /estadisticas/recompensas/resumen` junto a `/estadisticas/resumen`. Verificación manual en navegador (solo lectura): `GET http://localhost:8000/estadisticas/recompensas/resumen` → código `200`, `Content-Type: application/json`, exactamente 5 campos enteros: `cantidad_personajes=20`, `total_recompensas=14451509000`, `promedio_recompensa=722575450` (coincide con total/cantidad), `recompensa_maxima=3996000000`, `recompensa_minima=1000`. `POST` y `PUT` → `405` verificados por los tests (no por navegador). No se tocó `main.py` ni ningún test.
+Nota: hasta T8 el contrato era de cinco campos; con RF-10 (T9-T11) pasa a seis.
 
 - [x] **T9. Tests primero para RF-10 y actualización de tests existentes.** RF-10
   - Tests: Añadir test que cubre la mezcla `0`/`null`/ausente/`0.4` (4 de 5 personajes sin recompensa → `personajes_sin_recompensa = 4`) y el caso "sin ninguna recompensa" con `personajes_sin_recompensa == cantidad_personajes`. Actualizar los tests existentes que esperan exactamente cinco campos para que esperen **seis** campos (`personajes_sin_recompensa` incluido) y sus claves exactas. Estos tests deben quedar en **rojo** (aún no se toca `main.py`).

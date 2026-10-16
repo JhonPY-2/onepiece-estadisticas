@@ -1,6 +1,6 @@
 # Plan: `specs/001-resumen-recompensas/plan.md`
 
-**Spec de referencia:** [`specs/001-resumen-recompensas/spec.md`](./spec.md) – **Estado: aprobada**. No existen entradas con `[NECESITA ACLARACIÓN]`.
+**Spec de referencia:** [`specs/001-resumen-recompensas/spec.md`](./spec.md) – **Estado: implementada**. No existen entradas con `[NECESITA ACLARACIÓN]`.
 
 ## 1. Objetivo y alcance
 
@@ -176,20 +176,20 @@ Crear `tests/test_recompensas_resumen.py` con tests independientes. Usar las fix
 
 | Test | Descripción | Datos (colección `personajes`) | Resultado esperado | RF cubiertos |
 |---|---|---|---|---|
-| `test_recompensas_resumen_vacio` | Colección vacía | Sin documentos | `{"cantidad_personajes":0,"total_recompensas":0,"promedio_recompensa":0,"recompensa_maxima":0,"recompensa_minima":0,"personajes_sin_recompensa":0}` (200) | RF-1,RF-2,RF-8,RF-9,RF-10 |
-| `test_recompensas_sin_recompensas_todos_cero` | Personajes sin `recompensa` (ausente/null) | `{nombre:"A"}`, `{nombre:"B", recompensa:null}`, `{nombre:"C"}` (3) | cantidad 3, total 0, promedio 0, max 0, min 0, `personajes_sin_recompensa` 3 (= cantidad) | RF-3,RF-4,RF-5,RF-6,RF-7,RF-9,RF-10 |
+| `test_recompensas_resumen_coleccion_vacia` | Colección vacía | Sin documentos | `{"cantidad_personajes":0,"total_recompensas":0,"promedio_recompensa":0,"recompensa_maxima":0,"recompensa_minima":0,"personajes_sin_recompensa":0}` (200) | RF-1,RF-2,RF-8,RF-9,RF-10 |
+| `test_recompensas_resumen_sin_recompensas_cuatro_campos_cero` | Personajes sin `recompensa` (ausente/null) | `{nombre:"A"}`, `{nombre:"B", recompensa:null}`, `{nombre:"C"}` (3) | cantidad 3, total 0, promedio 0, max 0, min 0, `personajes_sin_recompensa` 3 (= cantidad) | RF-3,RF-4,RF-5,RF-6,RF-7,RF-9,RF-10 |
 | `test_recompensas_mezcla_cero_null_ausente_y_0_4` | Mezcla de recompensas que normalizan a `0` | `{nombre:"A", recompensa:0}`, `{nombre:"B", recompensa:null}`, `{nombre:"C"}`, `{nombre:"D", recompensa:0.4}`, `{nombre:"E", recompensa:1000}` (5) | cantidad 5, total 1000, promedio 200, max 1000, min 0, `personajes_sin_recompensa` 4 | RF-3,RF-4,RF-5,RF-6,RF-7,RF-10 |
-| `test_recompensas_con_cero` | Incluye `recompensa: 0` | `{nombre:"A", recompensa:0}`, `{nombre:"B", recompensa:1000}` | cantidad 2, total 1000, promedio 500, max 1000, min 0, `personajes_sin_recompensa` 1 | RF-3,RF-4,RF-5,RF-6,RF-7,RF-9,RF-10 |
-| `test_recompensas_enteras` | Valores enteros positivos | `{nombre:"L", recompensa:3000000000}`, `{nombre:"Z", recompensa:1000000000}` (Luffy mayor) | total 4_000_000_000, promedio 2_000_000_000, max 3e9, min 1e9 | RF-4,RF-5,RF-6,RF-7 |
-| `test_recompensas_redondeo_medio_arriba_agregado` | No entero `.5` se redondea **antes de agregar** | `{nombre:"A", recompensa:1.5}`, `{nombre:"B", recompensa:2.4}` → 2 y 2 → total 4, avg 2, max 2, min 2 | Verifica regla half-up previo a suma | RF-4,RF-6,RF-7 |
-| `test_recompensas_promedio_medio_arriba` | Promedio fracción `.5` → **hacia arriba** | `{nombre:"A", recompensa:1}`, `{nombre:"B", recompensa:2}` (total 3, count 2 → 1.5 → 2) | promedio 2 | RF-5 |
-| `test_recompensas_promedio_medio_arriba_otro` | Otro caso `.5` | `{nombre:"A", recompensa:0}`, `{nombre:"B", recompensa:5}` (2.5→3) | promedio 3 | RF-5 |
-| `test_recompensas_unico_personaje` | Un solo documento | `{nombre:"Solo", recompensa:1500.7}` → redondea 1501 | cantidad 1, total 1501, promedio 1501, max 1501, min 1501 | RF-3–RF-7 |
-| `test_recompensas_minimo_puede_ser_cero` | Mínimo 0 (ausente + valores) | `{nombre:"X"}`, `{nombre:"Y", recompensa:500}` | min 0, max 500, `personajes_sin_recompensa` 1 | RF-7,RF-10 |
+| `test_recompensas_resumen_recompensa_cero_participa_en_minimo` | Incluye `recompensa: 0` | `{nombre:"A", recompensa:0}`, `{nombre:"B", recompensa:1000}` | cantidad 2, total 1000, promedio 500, max 1000, min 0, `personajes_sin_recompensa` 1 | RF-3,RF-4,RF-5,RF-6,RF-7,RF-9,RF-10 |
+| `test_recompensas_resumen_dos_recompensas_enteras` | Valores enteros positivos | `{nombre:"L", recompensa:3000000000}`, `{nombre:"Z", recompensa:1000000000}` (Luffy mayor) | total 4_000_000_000, promedio 2_000_000_000, max 3e9, min 1e9 | RF-4,RF-5,RF-6,RF-7 |
+| `test_recompensas_resumen_no_entero_se_redondea_antes_de_agregar` | No entero `.5` se redondea **antes de agregar** | `{nombre:"A", recompensa:1.5}`, `{nombre:"B", recompensa:2.4}` → 2 y 2 → total 4, avg 2, max 2, min 2 | Verifica regla half-up previo a suma | RF-4,RF-6,RF-7 |
+| `test_recompensas_resumen_promedio_medio_hacia_arriba` | Promedio fracción `.5` → **hacia arriba** | `{nombre:"A", recompensa:1}`, `{nombre:"B", recompensa:2}` (total 3, count 2 → 1.5 → 2) | promedio 2 | RF-5 |
+| `test_recompensas_resumen_promedio_otro_medio_hacia_arriba` | Otro caso `.5` | `{nombre:"A", recompensa:0}`, `{nombre:"B", recompensa:5}` (2.5→3) | promedio 3 | RF-5 |
+| `test_recompensas_resumen_unico_personaje_con_decimal_redondeado` | Un solo documento | `{nombre:"Solo", recompensa:1500.7}` → redondea 1501 | cantidad 1, total 1501, promedio 1501, max 1501, min 1501 | RF-3–RF-7 |
+| `test_recompensas_resumen_null_y_ausente_cuentan_como_cero` | Mínimo 0 (ausente + valores) | `{nombre:"X"}`, `{nombre:"Y", recompensa:500}` | min 0, max 500, `personajes_sin_recompensa` 1 | RF-7,RF-10 |
 | `test_recompensas_estructura_solo_seis_campos` | Estructura exacta, sin otros campos | Datos mínimos | Claves exactamente: cantidad_personajes,total_recompensas,promedio_recompensa,recompensa_maxima,recompensa_minima,personajes_sin_recompensa. No extra. | RF-2,RF-9,RF-10 |
-| `test_recompensas_no_modifica_resumen_existente` | **Regresión**: `/estadisticas/resumen` no cambia | Datos de prueba | Endpoint `/estadisticas/resumen` sigue respondiendo igual que antes (200, estructura propia). No se modifica. | Criterios de finalización de la spec |
-| `test_recompensas_metodo_post_devuelve_405` | Método POST no permitido | Datos mínimos (o vacío) | `POST /estadisticas/recompensas/resumen` → `405 Method Not Allowed` | RF-1 (caso límite método distinto de GET) |
-| `test_recompensas_metodo_put_devuelve_405` | Método PUT no permitido | Datos mínimos (o vacío) | `PUT /estadisticas/recompensas/resumen` → `405 Method Not Allowed` | RF-1 (caso límite método distinto de GET) |
+| `test_estadisticas_resumen_regresion_sin_campos_nuevos` | **Regresión**: `/estadisticas/resumen` no cambia | Datos de prueba | Endpoint `/estadisticas/resumen` sigue respondiendo igual que antes (200, estructura propia). No se modifica. | Criterios de finalización de la spec |
+| `test_recompensas_resumen_post_no_permitido` | Método POST no permitido | Datos mínimos (o vacío) | `POST /estadisticas/recompensas/resumen` → `405 Method Not Allowed` | RF-1 (caso límite método distinto de GET) |
+| `test_recompensas_resumen_put_no_permitido` | Método PUT no permitido | Datos mínimos (o vacío) | `PUT /estadisticas/recompensas/resumen` → `405 Method Not Allowed` | RF-1 (caso límite método distinto de GET) |
 
 **Notas de implementación tests:**
 - **Actualizar los tests existentes** que comparan exactamente las claves del JSON (p. ej. la comprobación de estructura exacta) para que exijan **seis** campos e incluyan `personajes_sin_recompensa` (RF-2, RF-9, RF-10).
@@ -225,16 +225,16 @@ Debe pasar todos los tests (incluyendo los nuevos). Los tests solo escriben en `
 
 | RF | Descripción | Implementación (main.py) | Test(s) |
 |---|---|---|---|
-| RF-1 | `GET /estadisticas/recompensas/resumen` → `200`. Métodos distintos de GET → `405 Method Not Allowed` | Definir endpoint con `@app.get("/estadisticas/recompensas/resumen")`, devolver modelo Pydantic con status 200 implícito. FastAPI gestiona métodos no permitidos devolviendo 405. | `test_recompensas_resumen_vacio`, `test_recompensas_metodo_post_devuelve_405`, `test_recompensas_metodo_put_devuelve_405`, resto de tests (verifican 200). |
+| RF-1 | `GET /estadisticas/recompensas/resumen` → `200`. Métodos distintos de GET → `405 Method Not Allowed` | Definir endpoint con `@app.get("/estadisticas/recompensas/resumen")`, devolver modelo Pydantic con status 200 implícito. FastAPI gestiona métodos no permitidos devolviendo 405. | `test_recompensas_resumen_coleccion_vacia`, `test_recompensas_resumen_post_no_permitido`, `test_recompensas_resumen_put_no_permitido`, resto de tests (verifican 200). |
 | RF-2 | JSON con 6 campos exactos, solo esos, numéricos; `recompensa_maxima` solo número (sin nombre) | Modelo `RecompensasResumen` con `extra="forbid"`. Campos: `cantidad_personajes`, `total_recompensas`, `promedio_recompensa`, `recompensa_maxima`, `recompensa_minima`, `personajes_sin_recompensa`. Devolver instancia. | `test_recompensas_estructura_solo_seis_campos`, validación en todos tests. |
-| RF-3 | `cantidad_personajes` = total documentos `personajes` | Contador obtenido en el mismo recorrido del cursor (`contador += 1`). | `test_recompensas_sin_recompensas_todos_cero`, `test_recompensas_unico_personaje`, etc. |
-| RF-4 | `total_recompensas` = suma de recompensas convertidas a entero, contar `0` si ausente/null | Iterar cursor en única lectura, aplicar `normalizar_recompensa` (half-up con `math.floor(v+0.5)`) → acumular `total += r`. | `test_recompensas_enteras`, `test_recompensas_redondeo_medio_arriba_agregado`, casos con 0/null. |
-| RF-5 | `promedio_recompensa` = `total/count`, round half up con aritmética entera, `.5` → arriba | `promedio_recompensas(total, cantidad) = 0` si `cantidad==0`, else `(total + cantidad // 2) // cantidad`. | `test_recompensas_promedio_medio_arriba`, `test_recompensas_promedio_medio_arriba_otro`, `test_recompensas_enteras`. |
-| RF-6 | `recompensa_maxima` = mayor entre todas, tratar 0 si ausente/null | `max_r` actualizado en el mismo recorrido con `normalizar_recompensa`. | `test_recompensas_con_cero`, `test_recompensas_minimo_puede_ser_cero`, `test_recompensas_enteras`. |
-| RF-7 | `recompensa_minima` = menor entre todas, puede ser 0 | `min_r` actualizado en el mismo recorrido con `normalizar_recompensa`. | `test_recompensas_minimo_puede_ser_cero`, `test_recompensas_con_cero`. |
-| RF-8 | Colección vacía → seis campos 0, HTTP 200 | Si `contador == 0` tras recorrido: devolver seis ceros. | `test_recompensas_resumen_vacio`. |
+| RF-3 | `cantidad_personajes` = total documentos `personajes` | Contador obtenido en el mismo recorrido del cursor (`contador += 1`). | `test_recompensas_resumen_sin_recompensas_cuatro_campos_cero`, `test_recompensas_resumen_unico_personaje_con_decimal_redondeado`, etc. |
+| RF-4 | `total_recompensas` = suma de recompensas convertidas a entero, contar `0` si ausente/null | Iterar cursor en única lectura, aplicar `normalizar_recompensa` (half-up con `math.floor(v+0.5)`) → acumular `total += r`. | `test_recompensas_resumen_dos_recompensas_enteras`, `test_recompensas_resumen_no_entero_se_redondea_antes_de_agregar`, casos con 0/null. |
+| RF-5 | `promedio_recompensa` = `total/count`, round half up con aritmética entera, `.5` → arriba | `promedio_recompensas(total, cantidad) = 0` si `cantidad==0`, else `(total + cantidad // 2) // cantidad`. | `test_recompensas_resumen_promedio_medio_hacia_arriba`, `test_recompensas_resumen_promedio_otro_medio_hacia_arriba`, `test_recompensas_resumen_dos_recompensas_enteras`. |
+| RF-6 | `recompensa_maxima` = mayor entre todas, tratar 0 si ausente/null | `max_r` actualizado en el mismo recorrido con `normalizar_recompensa`. | `test_recompensas_resumen_recompensa_cero_participa_en_minimo`, `test_recompensas_resumen_null_y_ausente_cuentan_como_cero`, `test_recompensas_resumen_dos_recompensas_enteras`. |
+| RF-7 | `recompensa_minima` = menor entre todas, puede ser 0 | `min_r` actualizado en el mismo recorrido con `normalizar_recompensa`. | `test_recompensas_resumen_null_y_ausente_cuentan_como_cero`, `test_recompensas_resumen_recompensa_cero_participa_en_minimo`. |
+| RF-8 | Colección vacía → seis campos 0, HTTP 200 | Si `contador == 0` tras recorrido: devolver seis ceros. | `test_recompensas_resumen_coleccion_vacia`. |
 | RF-9 | Siempre 6 campos con nombres exactos, valores numéricos enteros | Modelo Pydantic + respuesta directa. Usar `int` (Python) → JSON números enteros. | Todos tests. |
-| RF-10 | `personajes_sin_recompensa` = nº de personajes sin `recompensa`, con `null` o cuya recompensa normalizada vale `0` | En el mismo recorrido del cursor: `if r == 0: sin_recompensa += 1`. Sin segunda consulta. | `test_recompensas_sin_recompensas_todos_cero`, `test_recompensas_mezcla_cero_null_ausente_y_0_4`, `test_recompensas_con_cero`, `test_recompensas_resumen_vacio`. |
+| RF-10 | `personajes_sin_recompensa` = nº de personajes sin `recompensa`, con `null` o cuya recompensa normalizada vale `0` | En el mismo recorrido del cursor: `if r == 0: sin_recompensa += 1`. Sin segunda consulta. | `test_recompensas_resumen_sin_recompensas_cuatro_campos_cero`, `test_recompensas_mezcla_cero_null_ausente_y_0_4`, `test_recompensas_resumen_recompensa_cero_participa_en_minimo`, `test_recompensas_resumen_coleccion_vacia`. |
 
 ## 7. Riesgos y mitigaciones
 
@@ -242,7 +242,7 @@ Debe pasar todos los tests (incluyendo los nuevos). Los tests solo escriben en `
 |---|---|
 | Precisión de redondeo (`.5`): confundir round half up vs banker's rounding | Usar `math.floor(v + 0.5)` para normalización y fórmula entera `(total + cantidad // 2) // cantidad` para promedio, con tests específicos para `.5` (agregado y promedio). |
 | Trabajar con `float`/`double` de Mongo para no enteros | Aplicar normalización explícita (detección de `int`/`float` y `math.floor(v + 0.5)`). Tests con `1.5`, `2.4`, `1500.7`. |
-| Modificar accidentalmente `/estadisticas/resumen` | Solo añadir nuevo endpoint y tests de regresión `test_recompensas_no_modifica_resumen_existente`. |
+| Modificar accidentalmente `/estadisticas/resumen` | Solo añadir nuevo endpoint y tests de regresión `test_estadisticas_resumen_regresion_sin_campos_nuevos`. |
 | No usar base correcta en tests | `conftest.py` centraliza el aislamiento: la fixture `db_test` (movida desde `tests/test_estadisticas.py`) garantiza `onepiece_test` y hace monkeypatch de `main.db`; el guard `pytest_collection_modifyitems` sigue abortando si un test apunta a otra base. Los tests no configuran URI propia. |
 
 ## 8. Entregables
