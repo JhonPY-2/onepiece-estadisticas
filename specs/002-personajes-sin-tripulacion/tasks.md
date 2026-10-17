@@ -11,12 +11,12 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
 
 ## Tareas
 
-- [ ] **T1. Tests de contrato y colección vacía (rojo).** RF-1, RF-2, RF-5, RF-6
+- [x] **T1. Tests de contrato y colección vacía (rojo).** RF-1, RF-2, RF-5, RF-6
   - Tests: crear `tests/test_personajes_sin_tripulacion.py` con `NOMBRE_DB_TEST = "onepiece_test"` a nivel de módulo (lo exige el guard de `tests/conftest.py`) y las fixtures `db_test`/`cliente_http`. Añadir: `test_personajes_sin_tripulacion_coleccion_vacia` (`GET` con colección vacía → `200` y `{"cantidad": 0}`), `test_personajes_sin_tripulacion_estructura_solo_cantidad` (con un `{"nombre": "A"}` → `200`, `set(datos.keys()) == {"cantidad"}` y `isinstance(datos["cantidad"], int)`), `test_personajes_sin_tripulacion_post_no_permitido` (`POST` → `405`) y `test_personajes_sin_tripulacion_put_no_permitido` (`PUT` → `405`). Deben quedar en **rojo** (el endpoint aún no existe → `404`).
   - Código: ninguno en esta tarea.
   - Hecho cuando: el usuario corre `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest tests/test_personajes_sin_tripulacion.py -v` y los tests de `GET` fallan por endpoint inexistente (`404`), sin haberse tocado `main.py`.
 
-- [ ] **T2. Modelo y endpoint con el conteo.** RF-1, RF-2, RF-3, RF-4, RF-5, RF-6, RF-7
+- [x] **T2. Modelo y endpoint con el conteo.** RF-1, RF-2, RF-3, RF-4, RF-5, RF-6, RF-7
   - Tests: los de T1 ya existen y deben pasar a verde con esta tarea.
   - Código: en `main.py`, bloque de modelos Pydantic (junto a `RecompensasResumen`, `main.py:60-68`), añadir `class PersonajesSinTripulacion(BaseModel)` con `model_config = {"extra": "forbid"}` y el campo `cantidad: int`. En el bloque de endpoints (`main.py:97` en adelante), añadir `@app.get("/estadisticas/personajes/sin-tripulacion", response_model=PersonajesSinTripulacion)` con `cantidad = await db.personajes.count_documents({"tripulacion": None})` y `return {"cantidad": cantidad}`. No modificar ningún endpoint existente.
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest tests/test_personajes_sin_tripulacion.py -v` pasa en verde; `main.py` solo se ha modificado para añadir el modelo y el endpoint nuevos.
