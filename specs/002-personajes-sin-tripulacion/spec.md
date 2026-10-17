@@ -1,6 +1,6 @@
 # specs/002-personajes-sin-tripulacion/spec.md
 
-**Estado: aprobada**
+**Estado: implementada**
 
 ## Contexto y objetivo
 El microservicio ya expone estadísticas de personajes (`/estadisticas/personajes`, `/estadisticas/resumen`, `/estadisticas/recompensas/resumen`), pero no responde a una pregunta concreta: cuántos personajes no tienen tripulación asignada. Hoy esa información solo se podría deducir mirando los datos uno por uno. El objetivo es añadir un endpoint de solo lectura que devuelva ese conteo como un único entero en el campo `cantidad`, para que un chat de IA y cualquier consumidor de la API respondan "¿cuántos personajes no tienen tripulación?" con una sola llamada y un contrato mínimo y estable. El nuevo endpoint complementa a los existentes, sin reemplazarlos ni modificarlos.

@@ -26,7 +26,7 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Código: sin cambios esperados (el filtro `{"tripulacion": None}` de T2 cubre estos casos); ajustar `main.py` solo si algún test detecta un fallo.
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest tests/test_personajes_sin_tripulacion.py -v` pasa en verde con los 11 tests.
 
-- [ ] **T4. Regresión y verificación final de contrato.** RF-1–RF-7 y criterios de finalización
+- [x] **T4. Regresión y verificación final de contrato.** RF-1–RF-7 y criterios de finalización
   - Tests: correr la suite completa y confirmar que `tests/test_estadisticas.py` y `tests/test_recompensas_resumen.py` siguen pasando sin cambios (los endpoints existentes no cambian su comportamiento ni su contrato).
   - Código: ninguno.
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest -v` pasa en verde; con el servidor levantado, Chrome DevTools (solo lectura) confirma en `http://localhost:8000/docs` la aparición de `GET /estadisticas/personajes/sin-tripulacion` y en `GET http://localhost:8000/estadisticas/personajes/sin-tripulacion` el código `200` con `Content-Type: application/json` y un cuerpo `{"cantidad": <entero >= 0>}` con exactamente ese campo.
