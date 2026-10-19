@@ -30,6 +30,8 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 - `uvicorn` se lanza **sin `--reload`**: tras tocar `main.py` hay que reiniciarlo con `venv\Scripts\python.exe -m uvicorn main:app --port 8000` para ver los endpoints nuevos.
 - En tareas sin código nuevo (como T3) el verde llega a la primera y es lo correcto; no forzar un rojo artificial.
 - El subagente `reviewer` una vez alucinó RFs ajenos a la spec: validar siempre contra el `spec.md` real.
+- Permisos de agentes de opencode: en el encabezado de .opencode/agents/*.md se usa la clave `permission:` en singular y como mapa (`edit: deny`, `bash: { "*": deny, "git diff*": allow }`, `task: { "*": deny, "planner": allow }`, y en `edit` primero `"*"` y después las rutas, porque gana la última regla que coincide). La lista `permissions:` con action/resource/effect que usábamos antes no se aplicaba. Comprobado el 2026-10-18 con archivos de prueba: el reviewer no pudo editar ni ejecutar comandos, y el coordinator no tiene la herramienta edit.
+- Cómo comprobar un permiso: pedirle al agente que modifique un archivo de prueba y mirar el disco con Get-Content (no fiarse de lo que cuente el agente), con un archivo de control que sí esté permitido. Los agentes se releen al reiniciar la pestaña de opencode.
 
 ## Próximos pasos
 
