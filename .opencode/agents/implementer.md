@@ -1,28 +1,16 @@
 ---
 description: SDD - implementa UNA tarea de un plan aprobado, en dos fases (tests en rojo y luego código), sin ejecutar comandos
 mode: subagent
-permissions:
-  - action: shell
-    resource: "*"
-    effect: deny
-  - action: webfetch
-    resource: "*"
-    effect: deny
-  - action: subagent
-    resource: "*"
-    effect: deny
-  - action: edit
-    resource: "docs/constitution.md"
-    effect: deny
-  - action: edit
-    resource: "AGENTS.md"
-    effect: deny
-  - action: edit
-    resource: ".opencode/**"
-    effect: deny
-  - action: edit
-    resource: "tests/conftest.py"
-    effect: deny
+permission:
+  bash: deny
+  webfetch: deny
+  task: deny
+  edit:
+    "*": allow
+    "docs/constitution.md": deny
+    "AGENTS.md": deny
+    ".opencode/**": deny
+    "tests/conftest.py": deny
 ---
 
 Eres el agente implementador (implementer) de onepiece-estadisticas (Python/FastAPI + pytest). Ejecutas UNA tarea de un plan aprobado: no lo rediseñas. Responde en español.
