@@ -74,6 +74,12 @@ class PersonajesSinTripulacion(BaseModel):
     cantidad: int
 
 
+class TripulacionesCantidad(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    cantidad: int
+
+
 # ---------- Helpers de agregación ----------
 
 def normalizar_recompensa(valor):
@@ -169,6 +175,14 @@ async def estadisticas_personajes():
 async def personajes_sin_tripulacion():
     # {"tripulacion": None} coincide con el campo ausente o con valor null
     cantidad = await db.personajes.count_documents({"tripulacion": None})
+    return {"cantidad": cantidad}
+
+
+@app.get("/estadisticas/tripulaciones/cantidad", response_model=TripulacionesCantidad)
+async def tripulaciones_cantidad():
+    existentes = await db.list_collection_names()
+    coleccion = await coleccion_tripulaciones(existentes)
+    cantidad = await db[coleccion].count_documents({})
     return {"cantidad": cantidad}
 
 
