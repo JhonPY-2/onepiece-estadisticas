@@ -26,7 +26,7 @@ Contrato HTTP: Chrome DevTools **solo lectura** contra `http://localhost:8000` (
   - Código: sin cambios esperados si T2 es correcto; ajustar `main.py` solo si algún test detecta fallo.
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest tests/test_tripulaciones_cantidad.py -v` pasa en verde con todos los tests de este archivo.
 
-- [ ] **T4. Regresión y verificación final de contrato.** RF-1–RF-7 y criterios de finalización
+- [x] **T4. Regresión y verificación final de contrato.** RF-1–RF-7 y criterios de finalización
   - Tests: correr la suite completa y confirmar que `tests/test_estadisticas.py`, `tests/test_recompensas_resumen.py` y `tests/test_personajes_sin_tripulacion.py` siguen pasando sin cambios (los endpoints existentes no cambian su comportamiento ni su contrato).
   - Código: ninguno.
   - Hecho cuando: `$env:MONGODB_URI="mongodb://127.0.0.1:27017/onepiece"; venv\Scripts\python.exe -m pytest -v` pasa en verde; con servidor levantado, Chrome DevTools (solo lectura) confirma en `http://localhost:8000/docs` la aparición de `GET /estadisticas/tripulaciones/cantidad` y en `GET http://localhost:8000/estadisticas/tripulaciones/cantidad` el código `200` with `Content-Type: application/json` and `{"cantidad": <entero >= 0>}` con exactamente ese campo.

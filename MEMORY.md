@@ -7,6 +7,7 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 - Microservicio FastAPI + Motor con `/estadisticas/personajes`, `/estadisticas/atletas`, `/estadisticas/tripulaciones` y `/estadisticas/resumen`, con tests aislados en `onepiece_test`.
 - Automatización SDD instalada (igual que onepiece-app/frontend): skill `.agents/skills/sdd/`, comandos `/sdd-*` en `.opencode/commands/`, `docs/constitution.md` (6 principios, refundido con tests/verificación e idioma) y reglas en `AGENTS.md`. Primera spec `specs/001-resumen-recompensas/` (aprobada; T1-T3 completadas).
 - Spec `002-personajes-sin-tripulacion` **implementada** (T1-T4): `GET /estadisticas/personajes/sin-tripulacion` devuelve `{"cantidad": int}` contando solo `personajes` con `tripulacion` `null` o ausente (cualquier otro valor cuenta como **con** tripulación). Pytest completo **50 passed** (11 nuevos en `tests/test_personajes_sin_tripulacion.py`). Commits 5446d8e, 8926b2a, 43f8296, 2660e7a y 427a09f.
+- Spec `003-tripulaciones-cantidad` (Estado aprobada, T1-T4 hechas; falta la validación con `reviewer`): `GET /estadisticas/tripulaciones/cantidad` devuelve `{"cantidad": int}` con el número de documentos de la colección de tripulaciones resuelta con `coleccion_tripulaciones()`, igual que `/estadisticas/tripulaciones`. Pytest completo **62 passed** (12 nuevos en `tests/test_tripulaciones_cantidad.py`). Commits 7db1d6e, 5c16641, 0dddb9b y c3d34ac.
 
 ## Decisiones (y por qué)
 
